@@ -11,26 +11,31 @@ maintained anymore. The code was updated with some important changes:
 
 ## Usage
 
-You can see the usage in the scripts directory.
-
-## Build the project
-
+### Running Googleplay-api via docker
 ```
-docker build -t googleplay_api .
-```
-
-## Run the Project
-
-```
-cd ~/googleplay-api
-docker run -it -v ./scripts/:/scripts -v ./config/:/config -v ./info/:/info googleplay_api:latest
+cd googleplay-api
+docker build -t googleplay-api .
+docker remove googleplay-api
+docker run -it --name googleplay-api -v ./scripts/:/scripts -v ./config/:/config -v ./../apks:/apks googleplay_api:latest &
+docker stop googleplay-api
 ```
 
 I like to have different folders for each purpose so I can change everything dynamically.
 - scripts: That contains scripts
 - config: That contains the configuration for the login
-- info: That contains files that have the output of the scripts
+- apks: The directory where it will store apks
 
+### Running using python in local machine
+```
+cd googleplay-api
+python3 -m venv .venv
+. .venv/bin/activate
+pip3 install -r requirements.txt
+pip3 install --upgrade protobuf==3.20.0
+python3 setup.py build
+pip3 install .
+python3 /scripts/get_apk-py -p <package_name> -v <versionCode>
+```
 
 
 ## Configs
@@ -40,10 +45,11 @@ First create a directory called "config" and then create a file called login.jso
 ```
 {
 	"test_device": {
-		"username": "<google_email_account>",
-		"password": "<app_password>",
-		"deviceName": "<codename_device>",
-		"gsfId" : <gsf_id>
+		"username": "iamd0pey1337@gmail.com",
+		"password": "",
+		"deviceName": "walleye",
+		"timezone": "America/New_York",
+		"locale": "en_US"
 	}
 }
 ```
@@ -57,10 +63,7 @@ Then create a application password in the button below two factor authentication
 
 There is a list of device names in /gpapi/device.properties, choose one and then add the codename, for "Nexus 5 (api 27)" the code name is "hammerhead"
 
-### gsfId
 
-To get this value go to "gpapi"->"device.properties" file.
-In the case of the deviceName "hammerhead", search for the GSF.version and you will find 12688048.
 
 ## Other Useful Commands
 
@@ -80,3 +83,5 @@ docker volume prune
 - https://github.com/NoMore201/googleplay-api/issues/105
 - It may mean that we need to refresh the gsfid and auth_sub_token by generating another app token in the Google Account under the "securit" tab.
 - "two-factor authentication"->"Apps Passwords"
+
+
